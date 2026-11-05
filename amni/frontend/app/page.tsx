@@ -1,4 +1,109 @@
 'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import { ArrowUpRight, ArrowRight, Check, CheckCheck, ChevronDown, Code2, FileText, Globe2, Layers3, LifeBuoy, Menu, MessageSquare, Network, Plus, Search, Send, Server, ShieldCheck, Terminal, X, Zap } from 'lucide-react';
 import { Brand } from '@/components/brand';
 import { SupportScene } from '@/components/support-scene';
-export default function Home() { const explore = () => document.getElementById('workspace')?.scrollIntoView(); return <main className="container section"><Brand/><h1>Tech trouble? Let's sort it.</h1><div style={{background:'#062d2b',borderRadius:20,padding:20}}><SupportScene onCase={explore} onGuide={explore}/></div><section id="workspace"><h2>Support workspace</h2><p>Case-management tools are the next milestone.</p></section></main>; }
+import { initialCases, type SupportCase } from '@/lib/demo';
+
+type Modal = { type: 'create' } | { type: 'case'; id: string } | { type: 'guide'; index: number } | { type: 'architecture' } | null;
+const filters = ['All cases', 'Open', 'In progress', 'Resolved'];
+const categories = ['All topics', 'Networking', 'Linux & Docker', 'Security'];
+
+export default function Home() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [cases, setCases] = useState<SupportCase[]>(initialCases);
+  const [filter, setFilter] = useState('All cases');
+  const [query, setQuery] = useState('');
+  const [topic, setTopic] = useState('All topics');
+  const [modal, setModal] = useState<Modal>(null);
+  const [toast, setToast] = useState('');
+  const [diagnostic, setDiagnostic] = useState(false);
+  const [diagnosticRunning, setDiagnosticRunning] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const lastFocus = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (modal) {
+      if (!dialog.current?.open) {
+        lastFocus.current = document.activeElement as HTMLElement;
+        dialog.current?.showModal();
+      }
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      dialog.current?.close();
+      lastFocus.current?.focus();
+    }
+  }, [modal]);
+  useEffect(() => {
+    if (!toast) return;
+    const timeout = setTimeout(() => setToast(''), 5000);
+    return () => clearTimeout(timeout);
+  }, [toast]);
+  useEffect(() => {
+    if (!diagnosticRunning) return;
+    const timeout = setTimeout(() => { setDiagnosticRunning(false); setDiagnostic(true); }, 1200);
+    return () => clearTimeout(timeout);
+  }, [diagnosticRunning]);
+  const selected = modal?.type === 'case' ? cases.find(item => item.id === modal.id) : null;
+  const visibleCases = cases.filter(item => (filter === 'All cases' || item.status === filter) && `${item.id} ${item.title} ${item.category}`.toLowerCase().includes(query.toLowerCase()));
+
+  return <>
+    <div className="announcement"><span className="announcement-badge">MEET YOUR NEW SUPPORT WORKSPACE</span> Technical support with a human side. <a href="#workspace">Take it for a spin <ArrowRight size={14}/></a></div>
+    <header className="header">
+      <div className="container nav-inner"><Brand/>
+        <nav className={menuOpen ? 'navigation open' : 'navigation'} aria-label="Main navigation">
+          <a href="#solutions" onClick={() => setMenuOpen(false)}>Platform <ChevronDown size={13}/></a>
+          <a href="#workflow" onClick={() => setMenuOpen(false)}>How it works</a>
+          <a href="#solutions" onClick={() => setMenuOpen(false)}>Resources</a>
+        </nav>
+        <div className="nav-actions"><a className="nav-login" href="#workspace">View demo <ArrowUpRight size={14}/></a><button className="menu-button" aria-label="Toggle navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X/> : <Menu/>}</button></div>
+      </div>
+    </header>
+    <main>
+      <section className="hero" id="home">
+        <div className="container hero-grid">
+          <div className="hero-copy">
+            <div className="eyebrow"><span className="status-dot"/> FOR THE PEOPLE WHO FIX THINGS</div>
+            <h1>Tech trouble?<br/>Let’s <span>sort it.</span><span className="heading-star" aria-hidden="true">✳</span></h1>
+            <p className="hero-description">The case. The clues. The “aha!” moment. Bring them together in one support workspace built for people, servers, and everything in between.</p>
+            <div className="hero-actions"><a className="button button-green" href="#workspace">Jump into the workspace <ArrowUpRight size={18}/></a><a className="text-link" href="#workflow"><span className="play-icon">▶</span> See how it works</a></div>
+            <div className="hero-notes"><span><Check size={14}/> Built for technical teams</span><span><Check size={14}/> Made to keep you moving</span></div>
+          </div>
+          <SupportScene onCase={() => document.getElementById('workspace')?.scrollIntoView()} onGuide={() => document.getElementById('solutions')?.scrollIntoView()}/>
+        </div>
+        <div className="container stack-strip"><span>UNDER THE HOOD<br/><strong>A SERIOUS STACK.</strong></span><div><Code2/> Next.js</div><div><Zap/> FastAPI</div><div><Layers3/> Docker</div><div><Server/> PostgreSQL</div><div><Globe2/> AWS-ready</div></div>
+      </section>
+
+      <section className="section solutions container" id="solutions">
+        <div className="section-header"><div><div className="eyebrow">THREE GOOD REASONS TO STAY HERE.</div><h2>Less juggling. More fixing.</h2></div><p>Cases, clues, and collective know-how.<br/>All within arm’s reach.</p></div>
+        <div className="solution-grid">
+          <a href="#workspace" className="solution-card"><span className="feature-icon green-icon"><MessageSquare size={23}/></span><span className="feature-number">01 / THE INBOX</span><h3>Give the chaos a home.</h3><p>Keep the context, priority, and next step together. Make your queue easier to act on.</p><span className="feature-link">Explore case management <ArrowUpRight size={16}/></span></a>
+          <a href="#solutions" className="solution-card"><span className="feature-icon blue-icon"><Terminal size={23}/></span><span className="feature-number">02 / THE TOOLKIT</span><h3>Follow the breadcrumbs.</h3><p>Start with Linux, DNS, TLS, and connectivity checks. Turn symptoms into a useful next step.</p><span className="feature-link">Explore diagnostics <ArrowUpRight size={16}/></span></a>
+          <a href="#solutions" className="solution-card"><span className="feature-icon orange-icon"><FileText size={23}/></span><span className="feature-number">03 / THE BRAIN</span><h3>Good answers travel.</h3><p>Find a guide before opening a case. Keep practical answers close to the people who need them.</p><span className="feature-link">Browse the knowledge base <ArrowUpRight size={16}/></span></a>
+        </div>
+      </section>
+
+      <section className="workspace-section" id="workspace"><div className="container">
+        <div className="section-header"><div><div className="eyebrow"><span className="status-dot"/> ROLL UP YOUR SLEEVES</div><h2>Fresh cases. Clear next steps.</h2></div></div>
+        <div className="workspace-panel"><div className="workspace-toolbar"><div className="case-tabs" role="group" aria-label="Filter cases by status">{filters.map(label => <button key={label} className={filter === label ? 'active' : ''} aria-pressed={filter === label} onClick={() => setFilter(label)}>{label}<span>{label === 'All cases' ? cases.length : cases.filter(c => c.status === label).length}</span></button>)}</div><label className="search"><Search size={16}/><input placeholder="Search cases…" aria-label="Search cases" value={query} onChange={e => setQuery(e.target.value)}/></label></div>
+          <div className="case-table"><div className="table-head"><span>CASE / SUBJECT</span><span>PRIORITY</span><span>STATUS</span><span>ASSIGNED TO</span><span/></div>{visibleCases.length ? visibleCases.map(item => <button className="case-row" key={item.id}><span className="case-subject"><span className="case-id">{item.id}</span><strong>{item.title}</strong><small>{item.category}</small></span><span className={`priority priority-${item.priority.toLowerCase()}`}><i/>{item.priority}</span><span className={`status status-${item.status.toLowerCase().replace(' ', '-')}`}>{item.status === 'Resolved' ? <Check size={12}/> : <span/>}{item.status}</span><span className="case-owner"><span className="avatar">{item.owner.split(' ').map(n => n[0]).join('')}</span>{item.owner}</span><ArrowUpRight size={16}/></button>) : <div className="empty-state"><Search size={25}/><h3>No cases found</h3><p>Try a different search or status.</p><button className="text-link" onClick={() => { setQuery(''); setFilter('All cases'); }}>Clear filters</button></div>}</div>
+          <div className="workspace-foot"><span><span className="status-dot"/> Interactive demo</span><span>Changes last for the current page session. No live services connected.</span></div>
+        </div>
+      </div></section>
+
+      <section className="section container workflow" id="workflow"><div className="workflow-intro"><div className="eyebrow">NO DETOURS REQUIRED</div><h2>From “uh-oh”<br/>to “we got this.”</h2><p>Keep the whole support story in one place, from the first report to the useful answer.</p><a className="text-link" href="#workspace">Give the demo a try <ArrowRight size={17}/></a></div><div className="steps">{[{n:'01',title:'Bring the context.',text:'Open a case with the issue, its priority, and the details your team needs.'},{n:'02',title:'Find the next step.',text:'Follow a diagnostic checklist and share findings where the work happens.'},{n:'03',title:'Close the loop.',text:'Resolve the case and turn what you learned into a guide for next time.'}].map(step => <div className="step" key={step.n}><span>{step.n}</span><div><h3>{step.title}</h3><p>{step.text}</p></div><ArrowDown/></div>)}</div></section>
+
+
+
+      <section className="container closing"><div className="closing-symbol"><ShieldCheck size={42} strokeWidth={1.6}/></div><div><div className="eyebrow">YOUR NEXT “AHA!” STARTS HERE</div><h2>Big on context. Low on chaos.</h2><p>Your cases, your context, your next step. Together.</p></div><a className="button button-green" href="#workspace">Explore the demo queue <ArrowUpRight size={17}/></a></section>
+    </main>
+    <footer className="container footer"><div><Brand/><p>For humans.<br/>And the systems they look after.</p></div><div className="footer-links"><a href="#solutions">Platform</a><a href="#workspace">Workspace demo</a><a href="#solutions">Knowledge base</a></div><div className="footer-meta"><span>AMNI · Design preview</span><span><ShieldCheck size={13}/> Built with care. Designed for clarity.</span></div></footer>
+
+    <dialog ref={dialog} className="modal" onCancel={() => setModal(null)} onClick={e => { if (e.target === e.currentTarget) setModal(null); }} aria-labelledby="modal-title"><button className="modal-close" aria-label="Close dialog" onClick={() => setModal(null)}><X size={20}/></button>
+    </dialog>
+    <div className={toast ? 'toast visible' : 'toast'} role="status" aria-live="polite"><Check size={17}/>{toast}</div>
+  </>;
+}
+function ArrowDown() { return <span className="step-check"><Check size={15}/></span>; }
