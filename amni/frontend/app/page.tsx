@@ -49,6 +49,18 @@ export default function Home() {
   const selected = modal?.type === 'case' ? cases.find(item => item.id === modal.id) : null;
   const visibleCases = cases.filter(item => (filter === 'All cases' || item.status === filter) && `${item.id} ${item.title} ${item.category}`.toLowerCase().includes(query.toLowerCase()));
 
+  function createCase(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const title = String(form.get('title') || '').trim();
+    const description = String(form.get('description') || '').trim();
+    if (!title || !description) { setToast('Please enter a case title and description.'); return; }
+    const id = `AMN-${Math.max(1042, ...cases.map(item => Number(item.id.split('-')[1]) || 0)) + 1}`;
+    setCases(previous => [{ id, title, category: String(form.get('category')), priority: String(form.get('priority')), status: 'Open', owner: 'You', description }, ...previous]);
+    setFilter('All cases'); setQuery(''); setModal(null);
+    setToast(`${id} created in your demo workspace.`);
+  }
+
   return <>
     <div className="announcement"><span className="announcement-badge">MEET YOUR NEW SUPPORT WORKSPACE</span> Technical support with a human side. <a href="#workspace">Take it for a spin <ArrowRight size={14}/></a></div>
     <header className="header">
@@ -58,7 +70,7 @@ export default function Home() {
           <a href="#workflow" onClick={() => setMenuOpen(false)}>How it works</a>
           <a href="#solutions" onClick={() => setMenuOpen(false)}>Resources</a>
         </nav>
-        <div className="nav-actions"><a className="nav-login" href="#workspace">View demo <ArrowUpRight size={14}/></a><button className="menu-button" aria-label="Toggle navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X/> : <Menu/>}</button></div>
+        <div className="nav-actions"><a className="nav-login" href="#workspace">View demo <ArrowUpRight size={14}/></a><button className="button button-dark button-small" onClick={() => setModal({ type: 'create' })}>Open a case <Plus size={15}/></button><button className="menu-button" aria-label="Toggle navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X/> : <Menu/>}</button></div>
       </div>
     </header>
     <main>
@@ -71,7 +83,7 @@ export default function Home() {
             <div className="hero-actions"><a className="button button-green" href="#workspace">Jump into the workspace <ArrowUpRight size={18}/></a><a className="text-link" href="#workflow"><span className="play-icon">▶</span> See how it works</a></div>
             <div className="hero-notes"><span><Check size={14}/> Built for technical teams</span><span><Check size={14}/> Made to keep you moving</span></div>
           </div>
-          <SupportScene onCase={() => document.getElementById('workspace')?.scrollIntoView()} onGuide={() => document.getElementById('solutions')?.scrollIntoView()}/>
+          <SupportScene onCase={() => setModal({ type: 'case', id: 'AMN-1042' })} onGuide={() => document.getElementById('solutions')?.scrollIntoView()}/>
         </div>
         <div className="container stack-strip"><span>UNDER THE HOOD<br/><strong>A SERIOUS STACK.</strong></span><div><Code2/> Next.js</div><div><Zap/> FastAPI</div><div><Layers3/> Docker</div><div><Server/> PostgreSQL</div><div><Globe2/> AWS-ready</div></div>
       </section>
@@ -86,9 +98,9 @@ export default function Home() {
       </section>
 
       <section className="workspace-section" id="workspace"><div className="container">
-        <div className="section-header"><div><div className="eyebrow"><span className="status-dot"/> ROLL UP YOUR SLEEVES</div><h2>Fresh cases. Clear next steps.</h2></div></div>
+        <div className="section-header"><div><div className="eyebrow"><span className="status-dot"/> ROLL UP YOUR SLEEVES</div><h2>Fresh cases. Clear next steps.</h2></div><button className="button button-dark" onClick={() => setModal({ type: 'create' })}><Plus size={16}/> New case</button></div>
         <div className="workspace-panel"><div className="workspace-toolbar"><div className="case-tabs" role="group" aria-label="Filter cases by status">{filters.map(label => <button key={label} className={filter === label ? 'active' : ''} aria-pressed={filter === label} onClick={() => setFilter(label)}>{label}<span>{label === 'All cases' ? cases.length : cases.filter(c => c.status === label).length}</span></button>)}</div><label className="search"><Search size={16}/><input placeholder="Search cases…" aria-label="Search cases" value={query} onChange={e => setQuery(e.target.value)}/></label></div>
-          <div className="case-table"><div className="table-head"><span>CASE / SUBJECT</span><span>PRIORITY</span><span>STATUS</span><span>ASSIGNED TO</span><span/></div>{visibleCases.length ? visibleCases.map(item => <button className="case-row" key={item.id}><span className="case-subject"><span className="case-id">{item.id}</span><strong>{item.title}</strong><small>{item.category}</small></span><span className={`priority priority-${item.priority.toLowerCase()}`}><i/>{item.priority}</span><span className={`status status-${item.status.toLowerCase().replace(' ', '-')}`}>{item.status === 'Resolved' ? <Check size={12}/> : <span/>}{item.status}</span><span className="case-owner"><span className="avatar">{item.owner.split(' ').map(n => n[0]).join('')}</span>{item.owner}</span><ArrowUpRight size={16}/></button>) : <div className="empty-state"><Search size={25}/><h3>No cases found</h3><p>Try a different search or status.</p><button className="text-link" onClick={() => { setQuery(''); setFilter('All cases'); }}>Clear filters</button></div>}</div>
+          <div className="case-table"><div className="table-head"><span>CASE / SUBJECT</span><span>PRIORITY</span><span>STATUS</span><span>ASSIGNED TO</span><span/></div>{visibleCases.length ? visibleCases.map(item => <button className="case-row" key={item.id} onClick={() => setModal({ type: 'case', id: item.id })}><span className="case-subject"><span className="case-id">{item.id}</span><strong>{item.title}</strong><small>{item.category}</small></span><span className={`priority priority-${item.priority.toLowerCase()}`}><i/>{item.priority}</span><span className={`status status-${item.status.toLowerCase().replace(' ', '-')}`}>{item.status === 'Resolved' ? <Check size={12}/> : <span/>}{item.status}</span><span className="case-owner"><span className="avatar">{item.owner.split(' ').map(n => n[0]).join('')}</span>{item.owner}</span><ArrowUpRight size={16}/></button>) : <div className="empty-state"><Search size={25}/><h3>No cases found</h3><p>Try a different search or status.</p><button className="text-link" onClick={() => { setQuery(''); setFilter('All cases'); }}>Clear filters</button></div>}</div>
           <div className="workspace-foot"><span><span className="status-dot"/> Interactive demo</span><span>Changes last for the current page session. No live services connected.</span></div>
         </div>
       </div></section>
@@ -97,11 +109,13 @@ export default function Home() {
 
 
 
-      <section className="container closing"><div className="closing-symbol"><ShieldCheck size={42} strokeWidth={1.6}/></div><div><div className="eyebrow">YOUR NEXT “AHA!” STARTS HERE</div><h2>Big on context. Low on chaos.</h2><p>Your cases, your context, your next step. Together.</p></div><a className="button button-green" href="#workspace">Explore the demo queue <ArrowUpRight size={17}/></a></section>
+      <section className="container closing"><div className="closing-symbol"><ShieldCheck size={42} strokeWidth={1.6}/></div><div><div className="eyebrow">YOUR NEXT “AHA!” STARTS HERE</div><h2>Big on context. Low on chaos.</h2><p>Your cases, your context, your next step. Together.</p></div><button className="button button-green" onClick={() => setModal({ type: 'create' })}>Open your first demo case <ArrowUpRight size={17}/></button></section>
     </main>
     <footer className="container footer"><div><Brand/><p>For humans.<br/>And the systems they look after.</p></div><div className="footer-links"><a href="#solutions">Platform</a><a href="#workspace">Workspace demo</a><a href="#solutions">Knowledge base</a></div><div className="footer-meta"><span>AMNI · Design preview</span><span><ShieldCheck size={13}/> Built with care. Designed for clarity.</span></div></footer>
 
     <dialog ref={dialog} className="modal" onCancel={() => setModal(null)} onClick={e => { if (e.target === e.currentTarget) setModal(null); }} aria-labelledby="modal-title"><button className="modal-close" aria-label="Close dialog" onClick={() => setModal(null)}><X size={20}/></button>
+      {modal?.type === 'create' && <><div className="eyebrow">YOUR DEMO WORKSPACE</div><h2 id="modal-title">Let’s get it sorted.</h2><p className="modal-description">Add a sample case. It stays in this browser; it isn’t sent to a support team.</p><form onSubmit={createCase}><label>Case title<input name="title" placeholder="What do you need help with?" maxLength={120} required autoFocus/></label><div className="form-row"><label>Category<select name="category"><option>Networking</option><option>Linux & Docker</option><option>Security</option><option>Knowledge base</option></select></label><label>Priority<select name="priority"><option>Medium</option><option>High</option><option>Low</option></select></label></div><label>Description<textarea name="description" placeholder="What happened? What have you tried?" maxLength={3000} rows={4} required/></label><button className="button button-green" type="submit">Create demo case <Send size={16}/></button></form></>}
+      {selected && <><div className="eyebrow">{selected.id} / {selected.category}</div><h2 id="modal-title">{selected.title}</h2><div className="case-detail-meta"><span className={`status status-${selected.status.toLowerCase().replace(' ', '-')}`}>{selected.status}</span><span>{selected.priority} priority</span><span>{selected.owner}</span></div><p className="case-description">{selected.description}</p><div className="case-timeline"><h3>Case activity</h3><p><MessageSquare size={16}/><span>Case recorded in the demo workspace.</span></p>{selected.status !== 'Open' && <p><Terminal size={16}/><span>Investigation started. Check logs and connectivity.</span></p>}{selected.status === 'Resolved' && <p><CheckCheck size={16}/><span>Case marked as resolved.</span></p>}</div><p className="modal-footnote">Sample workflow · no WebSocket connection</p></>}
     </dialog>
     <div className={toast ? 'toast visible' : 'toast'} role="status" aria-live="polite"><Check size={17}/>{toast}</div>
   </>;
