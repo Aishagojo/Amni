@@ -18,11 +18,23 @@ export default function Home() {
   const [topic, setTopic] = useState('All topics');
   const [modal, setModal] = useState<Modal>(null);
   const [toast, setToast] = useState('');
+  const [storageReady, setStorageReady] = useState(false);
+  const [storageAvailable, setStorageAvailable] = useState(true);
   const [diagnostic, setDiagnostic] = useState(false);
   const [diagnosticRunning, setDiagnosticRunning] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const lastFocus = useRef<HTMLElement | null>(null);
 
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('amni-demo-cases') || 'null');
+      if (Array.isArray(saved) && saved.every(item => item && typeof item.id === 'string' && typeof item.title === 'string' && typeof item.category === 'string' && typeof item.description === 'string' && typeof item.owner === 'string' && ['High', 'Medium', 'Low'].includes(item.priority) && ['Open', 'In progress', 'Resolved'].includes(item.status))) setCases(saved);
+    } catch { setStorageAvailable(false); }
+    setStorageReady(true);
+  }, []);
+  useEffect(() => {
+    if (storageReady) try { localStorage.setItem('amni-demo-cases', JSON.stringify(cases)); } catch { setStorageAvailable(false); }
+  }, [cases, storageReady]);
   useEffect(() => {
     if (modal) {
       if (!dialog.current?.open) {
@@ -101,7 +113,7 @@ export default function Home() {
         <div className="section-header"><div><div className="eyebrow"><span className="status-dot"/> ROLL UP YOUR SLEEVES</div><h2>Fresh cases. Clear next steps.</h2></div><button className="button button-dark" onClick={() => setModal({ type: 'create' })}><Plus size={16}/> New case</button></div>
         <div className="workspace-panel"><div className="workspace-toolbar"><div className="case-tabs" role="group" aria-label="Filter cases by status">{filters.map(label => <button key={label} className={filter === label ? 'active' : ''} aria-pressed={filter === label} onClick={() => setFilter(label)}>{label}<span>{label === 'All cases' ? cases.length : cases.filter(c => c.status === label).length}</span></button>)}</div><label className="search"><Search size={16}/><input placeholder="Search cases…" aria-label="Search cases" value={query} onChange={e => setQuery(e.target.value)}/></label></div>
           <div className="case-table"><div className="table-head"><span>CASE / SUBJECT</span><span>PRIORITY</span><span>STATUS</span><span>ASSIGNED TO</span><span/></div>{visibleCases.length ? visibleCases.map(item => <button className="case-row" key={item.id} onClick={() => setModal({ type: 'case', id: item.id })}><span className="case-subject"><span className="case-id">{item.id}</span><strong>{item.title}</strong><small>{item.category}</small></span><span className={`priority priority-${item.priority.toLowerCase()}`}><i/>{item.priority}</span><span className={`status status-${item.status.toLowerCase().replace(' ', '-')}`}>{item.status === 'Resolved' ? <Check size={12}/> : <span/>}{item.status}</span><span className="case-owner"><span className="avatar">{item.owner.split(' ').map(n => n[0]).join('')}</span>{item.owner}</span><ArrowUpRight size={16}/></button>) : <div className="empty-state"><Search size={25}/><h3>No cases found</h3><p>Try a different search or status.</p><button className="text-link" onClick={() => { setQuery(''); setFilter('All cases'); }}>Clear filters</button></div>}</div>
-          <div className="workspace-foot"><span><span className="status-dot"/> Interactive demo</span><span>Changes last for the current page session. No live services connected.</span></div>
+          <div className="workspace-foot"><span><span className="status-dot"/> Interactive demo</span><span>{storageAvailable ? 'Changes are saved in this browser.' : 'Changes are available for this session.'} No live services connected.</span></div>
         </div>
       </div></section>
 
