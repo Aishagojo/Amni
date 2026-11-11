@@ -11,3 +11,10 @@ export const guides = [
   { title: 'Find the story in your container logs', category: 'Linux & Docker', time: '6 min read', body: 'List containers with docker ps -a. Inspect recent output using docker logs --tail 100 <container>. Check the exit code and restart count with docker inspect. Compare errors with recent deployments and inspect health-check output before restarting the service.' },
   { title: 'Troubleshoot an HTTPS connection', category: 'Security', time: '5 min read', body: 'Confirm the hostname and system clock. Inspect the certificate chain and expiry using openssl s_client. Check that port 443 is reachable and the reverse proxy serves the correct certificate. Do not disable certificate verification to resolve a production connection error.' },
 ];
+export const architecture = [
+  ['Frontend', 'Next.js · React · TypeScript · Tailwind CSS'],
+  ['API & real-time', 'FastAPI · WebSockets · Python'],
+  ['Data & access', 'PostgreSQL · role-based authorization · audit logs'],
+  ['Infrastructure', 'Docker Compose · Nginx · HTTPS · GitHub Actions'],
+  ['AWS path', 'Start with EC2; consider RDS, CloudWatch, S3, and Secrets Manager as needed.'],
+];
