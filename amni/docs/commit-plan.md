@@ -40,5 +40,6 @@ scaffolds because those services are not implemented. The final tree should
 preserve the current working application and documentation.
 
 Use the repository-local author identity supplied by the project owner. Push the
-full `amni/` repository only to the supplied destination, without rewriting an
-existing remote history or force-pushing.
+project only to the supplied destination. The later owner-requested removal of
+the standalone layout commit normalizes the initial history under `amni/`; its
+push must use an explicit lease against the previously verified remote tip.
