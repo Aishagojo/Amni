@@ -4,7 +4,7 @@
 
 # AMNI
 
-### Technical support, with the full picture.
+### Technical support, with the full picture
 
 A connected workspace for support cases, infrastructure troubleshooting, and team knowledge.
 
