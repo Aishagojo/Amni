@@ -8,7 +8,7 @@ The interactive frontend for AMNI, a technical support platform built with
 > WebSocket connection is integrated yet.
 
 See the [main project README](../../README.md) for project status, the roadmap,
-architecture, and screenshots.
+and setup instructions.
 
 ## Run locally
 
