@@ -1,34 +1,78 @@
-# Environment variables and secrets
+# Real environment files stay local. Commit sanitized examples only.
 .env
 .env.*
+*.env
+*.env.*
+.envrc
+.envrc.local
 !.env.example
 !.env.*.example
 !*.env.example
 
-# Frontend dependencies and build output
+# Credentials and local account configuration
+.aws/
+.ssh/
+.secrets/
+secrets/
+credentials/
+.credentials
+credentials.json
+credentials.*.json
+*-credentials.json
+service-account*.json
+*-service-account.json
+.netrc
+.npmrc
+.pypirc
+.openai/credentials*
+.openai/*.token
+
+# Private keys and signing stores
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+
+# Infrastructure state and private variable values
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+*.tfplan
+!*.tfvars.example
+
+# Local data, database dumps, and logs
+*.dump
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.log
+
+# Dependencies, generated output, and tooling
 node_modules/
 .next/
 out/
 dist/
 coverage/
 *.tsbuildinfo
-
-# Python environments and generated files
 .venv/
 venv/
 __pycache__/
 *.py[cod]
-*.egg-info/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-.coverage
-htmlcov/
-build/
-
-# Local tooling and OS files
-.idea/
-.vscode/
 .DS_Store
 Thumbs.db
-*.log
+.codex/
+.agents/
+
+# Local project documentation
+/amni/docs/
