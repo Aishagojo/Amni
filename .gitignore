@@ -73,3 +73,6 @@ __pycache__/
 Thumbs.db
 .codex/
 .agents/
+
+# Local project documentation
+/amni/docs/
