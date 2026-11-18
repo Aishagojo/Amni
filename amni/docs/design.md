@@ -16,7 +16,7 @@ and filter controls. Layouts adapt across mobile, tablet, and desktop sizes.
 Case creation, case search, status changes, topic filters, guide dialogs, and a
 sample diagnostic preview are interactive. Cases persist in browser localStorage
 when available. No backend, real probe, authentication service, or AWS resources
-are connected in this frontend preview.
+are connected in this frontend preview
 
 ## Preview and verification
 
