@@ -104,7 +104,7 @@ npm ci
 npm run dev
 ```
 
-Open **[http://localhost:3000](http://localhost:3000)**.
+
 
 No database, Docker installation, environment variables, or AWS credentials are
 needed for this frontend preview. If Next.js reports an existing development
@@ -126,9 +126,7 @@ To preview that export with Python:
 python3 -m http.server 8080 --directory out
 ```
 
-Open **[http://localhost:8080](http://localhost:8080)**. The static export has no
-`npm start` script; any suitable static file server can serve `out/`.
-
+O
 ## Deployment
 
 <!-- Replace the #deployment link above with the verified live URL after the first deployment. -->
