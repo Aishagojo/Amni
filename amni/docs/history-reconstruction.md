@@ -15,4 +15,4 @@ message, author, and date. The commit hashes change as a result. A local backup
 of the earlier history is retained.
 
 The backend and infrastructure milestones introduce placeholders, not working
-FastAPI, database, Docker, or AWS services. See the main README for current scope.
+FastAPI, database, Docker, or AWS services. See the main README for current scope
