@@ -7,7 +7,7 @@ The interactive frontend for AMNI, a technical support platform built with
 > sample output, and no FastAPI service, database, authentication system, or
 > WebSocket connection is integrated yet.
 
-See the [main project README](../README.md) for project status, the roadmap,
+See the [main project README](../../README.md) for project status, the roadmap,
 architecture, and screenshots.
 
 ## Run locally
@@ -72,7 +72,7 @@ static HTTP server. No environment variables or cloud credentials are needed.
 
 Browser storage is specific to the origin. Switching ports creates a separate
 demo workspace. Reset instructions are in the
-[main README](../README.md#case-storage).
+[main README](../../README.md#demo-data).
 
 ## Validation scope
 
