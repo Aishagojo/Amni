@@ -16,7 +16,6 @@ A connected workspace for support cases, infrastructure troubleshooting, and tea
 
 </div>
 
-![AMNI: support cases, diagnostics, and knowledge connected in one workspace](amni/docs/assets/readme-cover.svg)
 
 ## What AMNI does
 
@@ -94,7 +93,6 @@ infrastructure directories currently contain scaffolding.
 | Authentication, authorization, and audit logging | **Planned** |
 | Real diagnostic workers, Docker services, and cloud deployment | **Planned** |
 
-[View desktop preview](amni/docs/previews/desktop.png) · [View mobile preview](amni/docs/previews/mobile.png)
 
 ## Quick start
 
@@ -161,7 +159,7 @@ Amni/
     │   ├── tests/
     │   └── pyproject.toml
     ├── nginx/                    # Reverse-proxy configuration placeholder
-    ├── docs/                     # Architecture, design, assets, and previews
+    ├── docs/                     # Local documentation (Git-ignored)
     ├── .github/workflows/        # CI/CD placeholder
     ├── docker-compose.yml        # Development placeholder
     └── docker-compose.prod.yml   # Production placeholder
@@ -197,9 +195,6 @@ location.reload();
 ## Documentation
 
 - [Frontend setup and source guide](amni/frontend/README.md)
-- [Planned architecture](amni/docs/architecture.md)
-- [Design direction and verification](amni/docs/design.md)
-- [Initial history and reconstruction note](amni/docs/history-reconstruction.md)
 
 The frontend build, TypeScript checks, and interactive browser checks have passed.
 Responsive verification covered **375, 390, 768, 1024, and 1440 pixel widths**.
