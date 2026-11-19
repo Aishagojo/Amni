@@ -66,14 +66,20 @@ Useful `psql` commands:
 \q       Exit
 ```
 
-The first migration creates `users`, `sessions`, `issue_categories`, and `cases`,
-plus Alembic’s version table. Open [schema.sql](schema.sql) to inspect the SQL and
-see the [backend guide](../README.md) for model details and migration commands.
-Assignment history, resolutions, notifications, and FastAPI endpoints come next.
+The five migrations create eight application tables: `users`, `sessions`,
+`issue_categories`, `cases`, `case_assignments`, `case_resolutions`, `case_events`,
+and `notifications`, plus Alembic's version table. Apply them from `amni/backend/`
+with `python -m alembic upgrade head` after installing the backend dependencies.
+Open [schema.sql](schema.sql) to inspect the SQL and see the
+[backend guide](../README.md) for workflow details and migration commands.
+
+Assignment history and fixes persist when cases are reassigned or reopened.
+Notifications are stored in-app records; email and WebSocket delivery need the
+future API and delivery layer.
 
 The image creates an administrative database user on first initialization.
-A restricted application role will be added when backend database access is
-implemented. Changing `.env` credentials later does not change users or passwords
+A restricted application role is still required before production deployment;
+the current development backend uses the local initialization account. Changing `.env` credentials later does not change users or passwords
 already stored in an initialized volume.
 
 ## Stop and resume

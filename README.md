@@ -71,15 +71,17 @@ execution, shared case data, and server-side security controls are planned.
 <img alt="AWS" src="https://img.shields.io/badge/AWS-FF9900?style=for-the-badge&amp;logoColor=white">
 </p>
 
-PostgreSQL now has the initial account, session, category, and case schema.
+PostgreSQL now stores accounts, sessions, categories, cases, assignment history,
+resolutions, case events, and notifications.
 FastAPI endpoints will connect these records to the frontend. Authenticated
-WebSockets will deliver case updates. Role-based authorization and audit logging
-are planned alongside controlled diagnostic workers. Docker Compose, Nginx,
+WebSockets will deliver case updates. Transactional services enforce case roles and record an append-only case
+timeline. HTTP authentication and broader security audit logging remain planned
+alongside controlled diagnostic workers. Docker Compose, Nginx,
 HTTPS, GitHub Actions, and a cost-conscious AWS deployment complete the intended
 architecture.
 
-The SQLAlchemy models and initial Alembic migration are implemented for local
-PostgreSQL. FastAPI endpoints, authentication flows, live case updates, and cloud
+Eight SQLAlchemy models, five Alembic migrations, and case workflow services are
+implemented for local PostgreSQL. FastAPI endpoints, authentication flows, live case updates, and cloud
 deployment remain planned.
 
 ## Project status
@@ -91,10 +93,12 @@ deployment remain planned.
 | Browser persistence for demo cases | **Implemented** |
 | Knowledge-base topic filters and sample guides | **Implemented** |
 | DNS, TCP, TLS, and HTTP diagnostic preview | **Simulated output** |
-| PostgreSQL schema, SQLAlchemy models, and initial migration | **Implemented locally** |
+| PostgreSQL schema, eight models, and five migrations | **Implemented locally** |
+| Assignment, resolution history, case timeline, and notification storage | **Implemented in backend services** |
 | FastAPI endpoints and authenticated WebSockets | **Planned** |
-| Authentication, authorization, and audit logging | **Planned** |
-| Local PostgreSQL Docker configuration | **Prepared; start using the database guide** |
+| Case role checks and append-only case events | **Implemented in backend services** |
+| HTTP authentication and platform security audit logging | **Planned** |
+| Local PostgreSQL Docker configuration | **Implemented and verified locally** |
 | Real diagnostic workers and cloud deployment | **Planned** |
 
 
@@ -130,7 +134,6 @@ To preview that export with Python:
 python3 -m http.server 8080 --directory out
 ```
 
-O
 ## Deployment
 
 <!-- Replace the #deployment link above with the verified live URL after the first deployment. -->
@@ -156,7 +159,7 @@ Amni/
     │   ├── components/
     │   ├── lib/
     │   └── public/
-    ├── backend/                  # Planned FastAPI application
+    ├── backend/                  # Database and workflows; FastAPI endpoints next
     │   ├── app/
     │   ├── tests/
     │   └── pyproject.toml
@@ -169,7 +172,7 @@ Amni/
 
 The development Compose file configures a memory-limited PostgreSQL service.
 See the [local database guide](amni/backend/database/README.md) to start it.
-The backend database models and migration are implemented. The HTTP API and
+The backend database models, migrations, and transactional case workflows are implemented. The HTTP API and
 production Compose configuration remain unimplemented.
 
 ## Demo data
@@ -191,9 +194,11 @@ location.reload();
 
 - [x] Build the frontend, custom AMNI identity, and responsive interface.
 - [x] Add interactive case workflows, sample guides, and diagnostic previews.
-- [x] Define initial PostgreSQL models and a tested Alembic migration.
+- [x] Implement PostgreSQL models and tested Alembic migrations.
+- [x] Store assignment history, causes/fixes, case events, and notifications.
+- [x] Enforce workflow roles and preserve earlier fixes when cases reopen.
 - [ ] Implement FastAPI endpoints, authentication flows, and case APIs.
-- [ ] Add authentication, role-based authorization, and audit records.
+- [ ] Add HTTP authentication, record access controls, and platform security audit records.
 - [ ] Deliver case updates through authenticated WebSockets.
 - [ ] Add knowledge-base search and restricted Linux/network diagnostics.
 - [ ] Configure Docker, Nginx, HTTPS, automated tests, CI/CD, and AWS hosting.
@@ -206,8 +211,8 @@ location.reload();
 
 The frontend build, TypeScript checks, and interactive browser checks have passed.
 Responsive verification covered **375, 390, 768, 1024, and 1440 pixel widths**.
-Backend configuration and PostgreSQL integration tests cover the initial
-schema. Full API and frontend/backend integration tests await those endpoints.
+Backend configuration and PostgreSQL integration tests cover constraints,
+migrations, workflow permissions, resolution search, and transaction rollback. Full API and frontend/backend integration tests await those endpoints.
 
 ## License
 
