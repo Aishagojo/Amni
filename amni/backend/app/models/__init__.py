@@ -8,5 +8,6 @@ from app.models.case import Case
 from app.models.enums import CasePriority, CaseStatus, UserRole
 
 from app.models.assignment import CaseAssignment
+from app.models.resolution import CaseResolution
 
-__all__ = ['Base', 'User', 'IssueCategory', 'UserSession', 'Case', 'CasePriority', 'CaseStatus', 'UserRole', 'CaseAssignment']
+__all__ = ['Base', 'User', 'IssueCategory', 'UserSession', 'Case', 'CasePriority', 'CaseStatus', 'UserRole', 'CaseAssignment', 'CaseResolution']
