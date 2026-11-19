@@ -3,13 +3,15 @@ from uuid import uuid4
 
 import pytest
 from alembic import command
+from alembic.config import Config
 from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
+from alembic.script import ScriptDirectory
 from sqlalchemy import delete, func, inspect, select, text
 from sqlalchemy.exc import IntegrityError
 
 from app.models import Base, Case, IssueCategory, User, UserSession
-from conftest import migration_config
+from conftest import BACKEND, migration_config
 
 pytestmark = pytest.mark.integration
 
@@ -33,9 +35,9 @@ def case(db, **changes):
 
 
 def test_initial_migration_and_categories(db):
-    assert set(inspect(db.bind).get_table_names()) == {"users", "sessions", "issue_categories", "cases", "alembic_version"}
+    assert {"users", "sessions", "issue_categories", "cases", "alembic_version"}.issubset(inspect(db.bind).get_table_names())
     assert set(db.scalars(select(IssueCategory.slug))) == {"networking", "linux-docker", "application", "security", "other"}
-    assert db.scalar(text("SELECT version_num FROM alembic_version")) == "0001_accounts_categories_cases"
+    assert db.scalar(text("SELECT version_num FROM alembic_version")) == ScriptDirectory.from_config(Config(str(BACKEND / "alembic.ini"))).get_current_head()
     assert compare_metadata(MigrationContext.configure(db.connection(), opts={"compare_server_default": True}), Base.metadata) == []
 
 
@@ -134,10 +136,42 @@ def test_migration_repeatability_and_round_trip(database_engine):
         command.upgrade(config, "head")
         assert connection.scalar(text("SELECT count(*) FROM issue_categories")) == 5
         connection.commit()
+
         command.downgrade(config, "base")
         assert set(inspect(connection).get_table_names()) == {"alembic_version"}
         connection.commit()
         command.upgrade(config, "head")
-        assert set(inspect(connection).get_table_names()) == {"users", "sessions", "issue_categories", "cases", "alembic_version"}
+        assert set(inspect(connection).get_table_names()) == set(Base.metadata.tables) | {"alembic_version"}
         assert connection.scalar(text("SELECT count(*) FROM issue_categories")) == 5
         connection.commit()
+
+
+def test_upgrade_preserves_existing_customer_and_case(database_engine):
+    # Only the disposable test database is downgraded. Commit real baseline rows
+    # so the upgrade proves existing data survives, rather than just empty DDL.
+    owner_id, case_id = uuid4(), uuid4()
+    with database_engine.connect() as connection:
+        config = migration_config(connection)
+        command.downgrade(config, "0001_accounts_categories_cases")
+        connection.execute(text("""
+            INSERT INTO users (id, display_name, email, password_hash)
+            VALUES (:id, 'Existing customer', 'migration@example.test', 'example-hash')
+        """), {"id": owner_id})
+        connection.execute(text("""
+            INSERT INTO cases (id, customer_id, category_id, title, description)
+            SELECT :id, :owner, id, 'Existing case', 'Preserve this investigation'
+            FROM issue_categories WHERE slug = 'networking'
+        """), {"id": case_id, "owner": owner_id})
+        original_number = connection.scalar(text("SELECT case_number FROM cases WHERE id = :id"), {"id": case_id})
+        connection.commit()
+        try:
+            command.upgrade(config, "head")
+            assert connection.scalar(text("SELECT case_number FROM cases WHERE id = :id"), {"id": case_id}) == original_number
+            assert connection.scalar(text("SELECT title FROM cases WHERE id = :id"), {"id": case_id}) == "Existing case"
+            assert connection.scalar(text("SELECT email FROM users WHERE id = :id"), {"id": owner_id}) == "migration@example.test"
+            connection.commit()
+        finally:
+            connection.rollback()
+            connection.execute(text("DELETE FROM cases WHERE id = :id"), {"id": case_id})
+            connection.execute(text("DELETE FROM users WHERE id = :id"), {"id": owner_id})
+            connection.commit()

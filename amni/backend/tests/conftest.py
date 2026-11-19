@@ -56,3 +56,37 @@ def db(database_engine):
             yield session
         finally:
             session.rollback()
+
+
+@pytest.fixture
+def actors(db):
+    from types import SimpleNamespace
+    from sqlalchemy import select
+    from app.models import IssueCategory, User
+    people = {}
+    for label, role in [("customer", "requester"), ("other_customer", "requester"),
+                        ("admin", "admin"), ("engineer", "engineer"), ("other_engineer", "engineer")]:
+        people[label] = User(display_name=label, email=label + "@example.test", password_hash="example-hash", role=role)
+    db.add_all(people.values())
+    db.flush()
+    people["category"] = db.scalar(select(IssueCategory).where(IssueCategory.slug == "networking"))
+    return SimpleNamespace(**people)
+
+
+@pytest.fixture
+def recorded_case(db, actors):
+    from app.models import Case
+    row = Case(customer_id=actors.customer.id, category_id=actors.category.id,
+               title="Connection problem", description="An example system cannot connect.")
+    db.add(row)
+    db.flush()
+    return row
+
+
+@pytest.fixture
+def assignment(db, actors, recorded_case):
+    from app.models import CaseAssignment
+    row = CaseAssignment(case_id=recorded_case.id, engineer_id=actors.engineer.id, assigned_by_id=actors.admin.id)
+    db.add(row)
+    db.flush()
+    return row
