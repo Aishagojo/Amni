@@ -10,7 +10,7 @@ A connected workspace for support cases, infrastructure troubleshooting, and tea
 
 [![Project status: frontend prototype](https://img.shields.io/badge/Status-Frontend_prototype-FFDF59?style=flat-square&labelColor=082F2B)](#project-status)
 [![Live demo: coming soon](https://img.shields.io/badge/Live_demo-Coming_soon-159A81?style=flat-square&labelColor=082F2B)](#deployment)
-[![Backend: planned](https://img.shields.io/badge/Backend-Planned-D0C2FA?style=flat-square&labelColor=082F2B)](#technology-stack)
+[![Backend: database ready](https://img.shields.io/badge/Backend-Database_ready-D0C2FA?style=flat-square&labelColor=082F2B)](#technology-stack)
 
 [Overview](#what-amni-does) · [Technology stack](#technology-stack) · [Quick start](#quick-start) · [Deployment](#deployment) · [Roadmap](#roadmap)
 
@@ -58,7 +58,7 @@ execution, shared case data, and server-side security controls are planned.
 | **Lucide + Manrope** | Interface icons and self-hosted typography. |
 | **Browser localStorage** | Persistence for demo cases on the current browser and origin. |
 
-### Planned backend and delivery stack
+### Backend and delivery stack
 
 <p>
 <img alt="Python" src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&amp;logo=python&amp;logoColor=white">
@@ -71,14 +71,16 @@ execution, shared case data, and server-side security controls are planned.
 <img alt="AWS" src="https://img.shields.io/badge/AWS-FF9900?style=for-the-badge&amp;logoColor=white">
 </p>
 
-FastAPI and PostgreSQL will provide persistent case management. Authenticated
+PostgreSQL now has the initial account, session, category, and case schema.
+FastAPI endpoints will connect these records to the frontend. Authenticated
 WebSockets will deliver case updates. Role-based authorization and audit logging
 are planned alongside controlled diagnostic workers. Docker Compose, Nginx,
 HTTPS, GitHub Actions, and a cost-conscious AWS deployment complete the intended
 architecture.
 
-These services are **not implemented or deployed yet**. The Python project and
-infrastructure directories currently contain scaffolding.
+The SQLAlchemy models and initial Alembic migration are implemented for local
+PostgreSQL. FastAPI endpoints, authentication flows, live case updates, and cloud
+deployment remain planned.
 
 ## Project status
 
@@ -89,9 +91,11 @@ infrastructure directories currently contain scaffolding.
 | Browser persistence for demo cases | **Implemented** |
 | Knowledge-base topic filters and sample guides | **Implemented** |
 | DNS, TCP, TLS, and HTTP diagnostic preview | **Simulated output** |
-| FastAPI, PostgreSQL, and authenticated WebSockets | **Planned** |
+| PostgreSQL schema, SQLAlchemy models, and initial migration | **Implemented locally** |
+| FastAPI endpoints and authenticated WebSockets | **Planned** |
 | Authentication, authorization, and audit logging | **Planned** |
-| Real diagnostic workers, Docker services, and cloud deployment | **Planned** |
+| Local PostgreSQL Docker configuration | **Prepared; start using the database guide** |
+| Real diagnostic workers and cloud deployment | **Planned** |
 
 
 ## Quick start
@@ -159,11 +163,14 @@ Amni/
     ├── nginx/                    # Reverse-proxy configuration placeholder
     ├── docs/                     # Local documentation (Git-ignored)
     ├── .github/workflows/        # CI/CD placeholder
-    ├── docker-compose.yml        # Development placeholder
+    ├── docker-compose.yml        # Local PostgreSQL development service
     └── docker-compose.prod.yml   # Production placeholder
 ```
 
-The Compose files contain empty service maps; they do not start the application.
+The development Compose file configures a memory-limited PostgreSQL service.
+See the [local database guide](amni/backend/database/README.md) to start it.
+The backend database models and migration are implemented. The HTTP API and
+production Compose configuration remain unimplemented.
 
 ## Demo data
 
@@ -184,7 +191,8 @@ location.reload();
 
 - [x] Build the frontend, custom AMNI identity, and responsive interface.
 - [x] Add interactive case workflows, sample guides, and diagnostic previews.
-- [ ] Implement FastAPI, PostgreSQL models, migrations, and case APIs.
+- [x] Define initial PostgreSQL models and a tested Alembic migration.
+- [ ] Implement FastAPI endpoints, authentication flows, and case APIs.
 - [ ] Add authentication, role-based authorization, and audit records.
 - [ ] Deliver case updates through authenticated WebSockets.
 - [ ] Add knowledge-base search and restricted Linux/network diagnostics.
@@ -193,10 +201,13 @@ location.reload();
 ## Documentation
 
 - [Frontend setup and source guide](amni/frontend/README.md)
+- [Backend schema, migrations, and tests](amni/backend/README.md)
+- [Local PostgreSQL setup and resource limits](amni/backend/database/README.md)
 
 The frontend build, TypeScript checks, and interactive browser checks have passed.
 Responsive verification covered **375, 390, 768, 1024, and 1440 pixel widths**.
-Backend and integration tests are pending implementation.
+Backend configuration and PostgreSQL integration tests cover the initial
+schema. Full API and frontend/backend integration tests await those endpoints.
 
 ## License
 
